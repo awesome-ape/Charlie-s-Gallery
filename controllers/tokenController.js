@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
+require('custom-env').env(process.env.NODE_ENV, './config');
 const secret=process.env.JWT_SECRET
+console.log(secret);
 const authenticateJWT=(req,res,next)=>{
     const authHeader= req.headers.authorization;
     if(!authHeader)
@@ -21,6 +23,7 @@ const authenticateJWT=(req,res,next)=>{
 
 }
 const generateToken=(user)=>{
+    console.log(secret);
    return jwt.sign({id: user._id}, secret, {expiresIn: '1h'});
 }
 
