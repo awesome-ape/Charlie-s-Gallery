@@ -1,0 +1,45 @@
+const userServices = require('../services/userServices');
+const tokenController=require('../controllers/tokenController')
+const register = async (req, res) => {
+  const { username, firstname, secondname, password } = req.body;
+  const missingFields = [];
+  if (!username) missingFields.push('username');
+  if (!firstname) missingFields.push('firstname');
+  if (!secondname) missingFields.push('secondname');
+  if (!password) missingFields.push('password');
+
+  if (missingFields.length > 0) {
+    return res.status(400).json({ error: `Missing fields: ${missingFields.join(', ')}` });
+  }
+
+  try {
+    const newUser = await userServices.register(password, username, firstname, secondname);
+
+    if (!newUser) {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+
+    res.status(201).json(newUser); 
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+const login=async(req,res)=>{
+    const {password, username}= req.body;
+    if(!username){
+        return res.status(401).json({message:'username missing'});
+    }
+    if(!password){
+                return res.status(401).json({message:'password missing'});
+
+    }
+   const user=await userServices.getUserByUsernameAndPassword(username, password);
+   if(!user){
+    return res.status(401).json({message: 'Incorrect userName or password'});
+   }
+   const token=tokenController.generateToken(user);
+  return res.json({message: 'login successful', token});
+}
+
+module.exports = { register,login };
