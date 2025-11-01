@@ -24,7 +24,7 @@ const authenticateJWT=(req,res,next)=>{
 }
 const generateToken=(user)=>{
     console.log(secret);
-   return jwt.sign({id: user._id}, secret, {expiresIn: '1h'});
+   return jwt.sign({id: user._id}, secret, {expiresIn: '5h'});
 }
 
 module.exports={authenticateJWT, generateToken};

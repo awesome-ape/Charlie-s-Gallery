@@ -5,7 +5,8 @@ const PhotoSchema = require('../models/photoSchema');
 const cloud = require('cloudinary').v2;
 
 const folder = "./uploads";
-
+const userSchema=require('../models/userSchema');
+const photoSchema = require('../models/photoSchema');
 // Configure Cloudinary
 cloud.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -53,15 +54,17 @@ async function deleteFromCloudinary(publicId) {
   }
 }
 
-async function deletePhoto(objectId) {
+async function deletePhoto(objectId,userid) {
   try {
     const photo = await PhotoSchema.findById(objectId).select('url');
     if (!photo) throw new Error("Photo not found");
     const publicId = getPublicIdFromUrl(photo.url);
     console.log("Photo deleted from Cloudinary:", publicId);
-    
     await deleteFromCloudinary(publicId);
     await PhotoSchema.findByIdAndDelete(objectId);
+    const user= await userSchema.findById(userid);
+    user.photos=user.photos.filter(id=> objectId.toString()!=id.toString());
+    await user.save();
   
   } catch (error) {
     throw new Error("Error deleting photo: " + error.message);
@@ -69,7 +72,8 @@ async function deletePhoto(objectId) {
 };
 
 // Save photo metadata to MongoDB
-async function savePhotoMetadata(title, tags, filePath, ownerId, accessList) {
+async function savePhotoMetadata(title, tags, filePath, accessList, userid) {
+  //upload to claudinary returns 
   let uploadResult;
   try {
     uploadResult = await uploadToCloudinary(filePath);
@@ -81,11 +85,13 @@ async function savePhotoMetadata(title, tags, filePath, ownerId, accessList) {
     title,
     tag: tags,
     url: uploadResult.secure_url,
-    owner: ownerId,
+    owner: userid,
     access: accessList
   });
 
   await newPhoto.save();
+  await userSchema.findByIdAndUpdate(userid, { $push: { photos: newPhoto._id } });
+
 
   // Clean local uploads folder
   for (const file of fs.readdirSync(folder)) {
@@ -128,4 +134,5 @@ const editPhoto = async (id, title, tags, accessList) => {
   }
 };
 
-module.exports = { uploadToCloudinary, savePhotoMetadata, deletePhoto, getPublicIdFromUrl, findPhotosByOwner, findPhotosByUrl, editPhoto };
+module.exports = { uploadToCloudinary, savePhotoMetadata, deletePhoto, getPublicIdFromUrl, findPhotosByOwner, findPhotosByUrl, 
+  editPhoto};
