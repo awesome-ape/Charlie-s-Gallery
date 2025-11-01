@@ -1,3 +1,4 @@
+const userSchema = require('../models/userSchema');
 const User=require('../models/userSchema');
 const bcrypt= require('bcrypt');
 const saltRound=10;
@@ -27,8 +28,8 @@ const getUserByUsernameAndPassword= async(username,password)=>{
     return userToJSON;
 
 }
-const getUserById=(id)=>{
-    const user=User.find({_id: id});
+const getUserById=async (id)=>{
+    const user=await User.findById(id);
     if(!user){
         return null;
     }
@@ -36,4 +37,15 @@ const getUserById=(id)=>{
     delete userToJSON.password;
     return userToJSON;
 }
-module.exports={register, getUserByUsernameAndPassword, getUserById};
+const getUserByUserName=async(username)=>{
+  const user= await User.findOne({username: username});
+  if(!user)
+    return null;
+ const userToJSON=user.toJSON();
+ delete userToJSON.password;
+ return userToJSON;
+}
+const saveProfileImage=async(userId, url)=>{
+   await userSchema.findByIdAndUpdate(userId, {profile_picture:url});
+}
+module.exports={register, getUserByUsernameAndPassword, getUserById, getUserByUserName, saveProfileImage};
