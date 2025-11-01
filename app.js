@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const { mongooseConnect } = require('./config/mongoose');
 const photoRoutes = require('./routes/photos');
 const app = express(); 
+const galleryRoutes = require('./routes/galleryRoutes');;
 
 // Middleware to parse JSON bodies
 app.use(express.json());
@@ -20,6 +21,7 @@ mongooseConnect();
 // Use routes
 app.use('/photos', photoRoutes);
 app.use('/users', users);
+app.use('/gallery', galleryRoutes);;
 
 // Start the server
 const PORT = process.env.PORT || 4000;
