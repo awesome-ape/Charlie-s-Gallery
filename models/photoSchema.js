@@ -4,12 +4,10 @@ const Schema = mongoose.Schema;
 // Photo schema
 const photoSchema = new Schema({
   title: { type: String },
-  tag: [{ type: String }],                       // optional photo tags
-  url: { type: String, required: true },
-  owner: { type: String },
-  access: [String],        // image URL or Base64
-  //owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  //access: [{ type: Schema.Types.ObjectId, ref: 'User' }], // empty = public
+  tag: [{ type: String }],                       
+  url: { type: String, required: true },        
+  owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  access: [{ type: Schema.Types.ObjectId, ref: 'User' }], // empty = public
   createdAt: { type: Date, default: Date.now }
 });
 

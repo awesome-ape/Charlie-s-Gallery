@@ -1,15 +1,24 @@
-const Gallery=require('../models/gallerySchema');
-const User=require('../models/userSchema');
-const createGallery=async(userid, title)=>{
-    try{
-    let newGallery=  new Gallery({title, owner: userid, content: [], access: []});
-    await newGallery.save();
-    await User.findByIdAndUpdate(userid, {$push: {galleries: newGallery._id}});
-    return newGallery.toJSON();
-    }
-    catch(err){
-        console.log(err);
-        throw err;
-    }
+const Gallery = require('../models/gallerySchema');
+const User = require('../models/userSchema');
+
+const createGallery = async (ownerId, title, content = [], accessList = []) => {
+  try {
+    const gallery = new Gallery({
+      title,
+      content,
+      access: accessList,
+      owner: ownerId,
+    });
+
+    await gallery.save();
+    await User.findByIdAndUpdate(ownerId,{$push:{galleries:gallery._id}});
+    return gallery.toJSON()
 }
-module.exports={createGallery};
+catch(err){
+console.error(err);
+throw err
+}
+};
+
+
+module.exports = { createGallery };
