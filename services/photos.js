@@ -3,6 +3,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const PhotoSchema = require('../models/photoSchema');
 const cloud = require('cloudinary').v2;
+const Gallery = require("../models/gallerySchema")
 
 const folder = "./uploads";
 
@@ -59,7 +60,8 @@ async function deletePhoto(objectId) {
     if (!photo) throw new Error("Photo not found");
     const publicId = getPublicIdFromUrl(photo.url);
     console.log("Photo deleted from Cloudinary:", publicId);
-    
+
+    await Gallery.updateMany({content:objectId}, {$pull:{content : objectId}});
     await deleteFromCloudinary(publicId);
     await PhotoSchema.findByIdAndDelete(objectId);
   

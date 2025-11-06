@@ -11,5 +11,29 @@ const createGallery = async (req,res) =>{
         res.status(500).json({ message: "Error creating gallery", error: error.message });
     }
 }   ;
+const deleteGallery = async (req,res) =>{
+    try {
+        const ownerId = req.user.id
+        const galleryId = req.params.id
+        await services.deleteGallery(ownerId,galleryId)
+        res.status(200).json({message : "Gallery deleted"})
+    }
+    catch(err){
+        res.status(500).json({message : "Gallery deletion failed"})
+    }
+}
 
-module.exports = { createGallery };
+const editGallery = async (req,res) => {
+    try{
+        const ownerId = req.user.id
+        const galleryId = req.params.id
+        const {title,toDelete,toAdd} = req.body
+        await services.editGallery(ownerId,galleryId,title,toDelete,toAdd)
+        res.status(200).json({message : "Gallery edited"})
+    }
+    catch(err){
+        res.status(500).json({message : "Gallery edit operation failed"})
+    }
+}
+
+module.exports = { createGallery,deleteGallery,editGallery };
