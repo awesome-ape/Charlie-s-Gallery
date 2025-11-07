@@ -49,5 +49,17 @@ const editPhoto = async (req, res) => {
         res.status(500).json({ message: "Error updating photo", error: error.message });
     }
 };
-
-module.exports = { uploadPhoto, deletePhoto, editPhoto };
+const searchByUserPhotos=async(req,res)=>{
+    const userid=req.user.id;
+    if(!userid){
+        return res.status(401).json({message: 'Missing autentication'})
+    }
+    const username=req.params.query;
+    if(!username){
+        return res.status(401).json({message: 'Missing quary'})
+    }
+    const photos=await services.searchByUserPhotos(userid, username);
+    return res.status(200).json({photos: photos});
+    
+}
+module.exports = { uploadPhoto, deletePhoto, editPhoto, searchByUserPhotos};
