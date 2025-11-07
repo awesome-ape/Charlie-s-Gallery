@@ -11,6 +11,7 @@ router.delete('/delete/:id', authenticateJWT,controllers.deletePhoto);
 
 //Route to handle photo editing
 router.put('/edit/:id',authenticateJWT, controllers.editPhoto);
-
+//search by username
+router.get('/search/:query', authenticateJWT, controllers.searchByUserPhotos);
 
 module.exports = router;

@@ -3,7 +3,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const PhotoSchema = require('../models/photoSchema');
 const cloud = require('cloudinary').v2;
-
+const Gallery=require('../models/gallerySchema');
 const folder = "./uploads";
 const userSchema=require('../models/userSchema');
 const photoSchema = require('../models/photoSchema');
@@ -64,6 +64,7 @@ async function deletePhoto(objectId,userid) {
     await PhotoSchema.findByIdAndDelete(objectId);
     const user= await userSchema.findById(userid);
     user.photos=user.photos.filter(id=> objectId.toString()!=id.toString());
+    await Gallery.updateMany({content:objectId}, {$pull:{content : objectId}});
     await user.save();
   
   } catch (error) {
@@ -133,6 +134,15 @@ const editPhoto = async (id, title, tags, accessList) => {
     throw new Error("Error editing photo: " + error.message);
   }
 };
+const searchByUserPhotos=async(userid, username)=>{
+  const user=await userSchema.findOne({username:username}).populate("photos");
+  if(!user){
+    return null;
+  }
+  const photos=user.photos;
+  const entitled=photos.filter(photo=>photo.access.some(u=> u.equals(userid)));
+  return entitled;
 
+}
 module.exports = { uploadToCloudinary, savePhotoMetadata, deletePhoto, getPublicIdFromUrl, findPhotosByOwner, findPhotosByUrl, 
-  editPhoto};
+  editPhoto, searchByUserPhotos};

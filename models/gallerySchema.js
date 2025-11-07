@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-
-
 // Gallery schema
 const gallerySchema = new Schema({
   title: { type: String, required: true },
