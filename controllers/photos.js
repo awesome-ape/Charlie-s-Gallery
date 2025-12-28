@@ -3,13 +3,26 @@ const services = require('../services/photos');
 const upload = require('../midware/upload');
 const photo = require('../models/photoSchema');
 const photoSchema = require('../models/photoSchema');
+const { get } = require('http');
+const { inflateRaw } = require('zlib');
 
 const uploadPhoto = async (req, res) => {
     try {
-     const { title,tags,accessList} = req.body;
-     const filePath = req.file.path;
-    const userid=req.user.id;
-    
+    const { title, tags } = req.body;
+    const filePath = req.file.path;
+    const userid = req.user.id;
+
+    // normalize accessList
+    let accessList = [];
+
+    if (req.body.accessList) {
+      if (Array.isArray(req.body.accessList)) {
+        accessList = req.body.accessList;
+      } else {
+        // single value case liek when setting a photo to 'private' only
+        accessList = [req.body.accessList];
+      }
+    }
      const  newPhoto = await services.savePhotoMetadata(title, tags, filePath, accessList, userid);
      res.status(201).json({ message: "Photo uploaded successfully", photo: newPhoto });
     } catch (error) {
@@ -62,4 +75,13 @@ const searchByUserPhotos=async(req,res)=>{
     return res.status(200).json({photos: photos});
     
 }
-module.exports = { uploadPhoto, deletePhoto, editPhoto, searchByUserPhotos};
+const getMyPhotos=async(req,res)=>{
+    const userid=req.user.id;
+    if(!userid){
+        return res.status(401).json({message: 'Missing autentication'})
+    }
+    const photos = await services.getMyPhotos(userid);
+    return res.status(200).json({photos: photos});
+};
+    
+module.exports = { uploadPhoto, deletePhoto, editPhoto, searchByUserPhotos,getMyPhotos};

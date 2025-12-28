@@ -21,7 +21,7 @@ mongooseConnect();
 // Use routes
 app.use('/photos', photoRoutes);
 app.use('/users', users);
-app.use('/gallery', galleryRoutes);;
+app.use('/galleries', galleryRoutes);
 // Start the server
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

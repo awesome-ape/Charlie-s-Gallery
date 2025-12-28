@@ -134,15 +134,20 @@ const editPhoto = async (id, title, tags, accessList) => {
     throw new Error("Error editing photo: " + error.message);
   }
 };
+// gives all photos tthat can be viewd by this user from the target user
 const searchByUserPhotos=async(userid, username)=>{
   const user=await userSchema.findOne({username:username}).populate("photos");
   if(!user){
     return null;
   }
   const photos=user.photos;
-  const entitled=photos.filter(photo=>photo.access.some(u=> u.equals(userid)));
+  const entitled=photos.filter((photo=>photo.access.some(u=> u.equals(userid)) || photo.owner.equals(userid) || photo.access.length==0));
   return entitled;
 
 }
+
+const getMyPhotos = async (userid) => {
+  return await photoSchema.find({ owner: userid });
+};
 module.exports = { uploadToCloudinary, savePhotoMetadata, deletePhoto, getPublicIdFromUrl, findPhotosByOwner, findPhotosByUrl, 
-  editPhoto, searchByUserPhotos};
+  editPhoto, searchByUserPhotos,getMyPhotos};

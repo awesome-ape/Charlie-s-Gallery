@@ -14,4 +14,6 @@ router.put('/edit/:id',authenticateJWT, controllers.editPhoto);
 //search by username
 router.get('/search/:query', authenticateJWT, controllers.searchByUserPhotos);
 
+router.get('/myphotos',authenticateJWT,controllers.getMyPhotos);
+
 module.exports = router;
